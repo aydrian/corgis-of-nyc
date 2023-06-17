@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-// const { fontFamily } = require("tailwindcss/defaultTheme");
 
 export default {
   content: ["./app/**/*.{js,jsx,ts,tsx}"],
@@ -64,11 +63,6 @@ export default {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))"
         }
-      },
-      fontFamily: {
-        "atkinson-hyperlegible": ["'Atkinson Hyperlegible'", "sans-serif"],
-        poppins: ["'Poppins'", "sans-serif"]
-        // sans: ["var(--font-sans)", ...fontFamily.sans]
       },
       keyframes: {
         "accordion-down": {
