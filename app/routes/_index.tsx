@@ -13,7 +13,7 @@ export const meta: V2_MetaFunction = () => {
 export default function Index() {
   return (
     <div className="flex min-h-screen min-w-full items-center justify-center bg-gradient-to-br from-sky-400 via-rose-400 to-lime-400">
-      <div className="flex flex-col items-center justify-center gap-1.5 rounded-md bg-white p-12">
+      <div className="flex flex-col items-center justify-center gap-1.5 rounded-md bg-white p-12 drop-shadow-md">
         <img alt="Corgis of NYC" src={logo} />
         <h1 className="text-3xl font-bold leading-tight text-gray-900">
           NYC Corgi Meetups
