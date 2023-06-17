@@ -1,7 +1,9 @@
-# Welcome to Remix!
+![Corgis of NYC](/app/images/logo.png)
 
-- [Remix Docs](https://remix.run/docs)
-- [Netlify Functions](https://www.netlify.com/products/functions/)
+# Corgis of NYC
+
+NYC Corgi Meetups
+Instagram: [@corgis_of_nyc](https://www.instagram.com/corgis_of_nyc/)
 
 ## Netlify Setup
 
@@ -60,3 +62,8 @@ netlify deploy --build
 # production deployment
 netlify deploy --build --prod
 ```
+
+## 📝 License
+
+Copyright © 2023 [Corgis of NYC](https://corgis-of-nyc.netlify.app/). <br />
+This project is [MIT](./LICENSE) licensed.

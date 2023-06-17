@@ -21,7 +21,7 @@ export default function Index() {
         <h2 className="text-2xl font-semibold leading-tight text-gray-700">
           Follow us on Instagram
         </h2>
-        <h3 className="flex gap-2 text-xl font-semibold leading-tight text-gray-700">
+        <h3 className="flex items-center gap-2 text-xl font-semibold leading-tight text-gray-700">
           <Instagram className="h-8 w-auto text-inherit" />
           <a
             className="text-blue-700 hover:underline"
