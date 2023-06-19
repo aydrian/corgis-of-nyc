@@ -5,7 +5,7 @@ import Header from "~/components/header";
 
 export default function Layout() {
   return (
-    <div className="flex min-h-screen min-w-full flex-col justify-start gap-4 bg-gradient-to-br from-sky-400 via-rose-400 to-lime-400 p-4 md:px-12 md:pt-6">
+    <div className="flex min-h-screen min-w-full flex-col justify-start gap-4 bg-gradient-to-br from-sky-400 via-rose-400 to-lime-400 p-4 md:px-12 md:pt-6 lg:px-36">
       <Header />
       <main className="flex grow">
         <Outlet />
