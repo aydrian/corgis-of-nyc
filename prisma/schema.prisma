@@ -15,6 +15,7 @@ model User {
   email     String    @unique
   firstName String    @map("first_name")
   lastName  String    @map("last_name")
+  createdAt DateTime  @default(now()) @map("created_at")
   password  Password?
 
   @@map("users")
@@ -27,4 +28,30 @@ model Password {
   userId String @unique @map("user_id") @db.Uuid
 
   @@map("passwords")
+}
+
+model Member {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  email       String   @unique
+  phoneNumber String   @map("phone_number")
+  zipCode     String   @map("zip_code")
+  readCOC     Boolean  @map("read_coc")
+  createdAt   DateTime @default(now()) @map("created_at")
+  corgis      Corgi[]
+
+  @@map("members")
+}
+
+model Corgi {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  birthDate DateTime? @map("birth_date") @db.Date
+  instagram String?
+  isVisible Boolean   @map("is_visible")
+  createdAt DateTime  @default(now()) @map("created_at")
+  pawrents  Member[]
+
+  @@map("corgis")
 }
