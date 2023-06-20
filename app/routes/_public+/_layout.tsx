@@ -10,18 +10,23 @@ export default function Layout() {
       <main className="flex grow">
         <Outlet />
       </main>
-      <footer className="rounded-md bg-black">
-        <ul className="mx-auto flex items-center justify-between p-4 text-sm font-bold text-white">
+      <footer className="flex items-center justify-between rounded-md bg-black p-4 text-sm font-bold text-white">
+        <div>
+          <a
+            className="flex items-center gap-2 underline-offset-4 hover:underline"
+            href="https://www.instagram.com/corgis_of_nyc/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <Instagram className="h-6 w-auto text-inherit" />
+            @corgis_of_nyc
+          </a>
+        </div>
+        <ul className="flex items-center gap-2">
           <li>
-            <a
-              className="flex items-center gap-2 underline-offset-4 hover:underline"
-              href="https://www.instagram.com/corgis_of_nyc/"
-              rel="noreferrer"
-              target="_blank"
-            >
-              <Instagram className="h-6 w-auto text-inherit" />
-              @corgis_of_nyc
-            </a>
+            <Link className="underline-offset-4 hover:underline" to="/about">
+              About
+            </Link>
           </li>
           <li>
             <Link className="underline-offset-4 hover:underline" to="/coc">
