@@ -64,7 +64,7 @@ export default function About() {
         photos).
       </p>
       <p>
-        Here we are now 2 years later, and we see at least 100 Corgis come out
+        Here we are now 2 years later, and we see at least 100 corgis come out
         each month.
       </p>
       <p>
