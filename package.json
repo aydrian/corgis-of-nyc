@@ -37,7 +37,7 @@
     "cross-env": "^7.0.3",
     "date-fns": "^2.30.0",
     "isbot": "^3.6.8",
-    "lucide-react": "^0.244.0",
+    "lucide-react": "^0.248.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^1.13.2",
