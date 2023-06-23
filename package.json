@@ -1,6 +1,7 @@
 {
   "private": true,
   "sideEffects": false,
+  "type": "module",
   "author": "Aydrian Howard <aydrian@gmail.com> (https://itsaydrian.com)",
   "license": "MIT",
   "repository": "github:aydrian/corgis-of-nyc",

@@ -13,10 +13,10 @@ import { format } from "date-fns";
 import { useRef } from "react";
 import { z } from "zod";
 
-import { CheckboxField, InputField, SubmitButton } from "~/components/form";
-import { Button } from "~/components/ui/button";
-import { prisma } from "~/utils/db.server";
-import { cn } from "~/utils/misc";
+import { CheckboxField, InputField, SubmitButton } from "~/components/form.tsx";
+import { Button } from "~/components/ui/button.tsx";
+import { prisma } from "~/utils/db.server.ts";
+import { cn } from "~/utils/misc.ts";
 
 const CorgiSchema = z.object({
   birthDate: z

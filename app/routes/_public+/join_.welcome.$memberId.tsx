@@ -3,7 +3,7 @@ import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
 import { Response, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-import { prisma } from "~/utils/db.server";
+import { prisma } from "~/utils/db.server.ts";
 
 export const meta: V2_MetaFunction = () => {
   return [

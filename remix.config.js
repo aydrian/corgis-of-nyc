@@ -1,7 +1,7 @@
-const { flatRoutes } = require("remix-flat-routes");
+import { flatRoutes } from "remix-flat-routes";
 
 /** @type {import('@remix-run/dev').AppConfig} */
-module.exports = {
+export default {
   future: {
     v2_errorBoundary: true,
     v2_headers: true,
@@ -18,6 +18,6 @@ module.exports = {
       ? "./server.ts"
       : undefined,
   serverBuildPath: ".netlify/functions-internal/server.js",
-  serverModuleFormat: "cjs",
+  serverModuleFormat: "esm",
   tailwind: true
 };

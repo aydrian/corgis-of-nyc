@@ -1,6 +1,6 @@
-import { Instagram } from "~/components/brand-logos";
+import { Instagram } from "~/components/brand-logos.tsx";
 import logo from "~/images/logo.png";
-import { cn } from "~/utils/misc";
+import { cn } from "~/utils/misc.ts";
 
 export default function Header({ className }: { className?: string }) {
   return (

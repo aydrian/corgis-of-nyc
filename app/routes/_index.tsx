@@ -1,6 +1,6 @@
 import type { V2_MetaFunction } from "@remix-run/node";
 
-import Header from "~/components/header";
+import Header from "~/components/header.tsx";
 
 export const meta: V2_MetaFunction = () => {
   return [

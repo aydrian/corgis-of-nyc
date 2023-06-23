@@ -1,7 +1,7 @@
 import { Link, Outlet } from "@remix-run/react";
 
-import { Instagram } from "~/components/brand-logos";
-import Header from "~/components/header";
+import { Instagram } from "~/components/brand-logos.tsx";
+import Header from "~/components/header.tsx";
 
 export default function Layout() {
   return (

@@ -1,10 +1,10 @@
 import { useId } from "react";
 
-import { cn } from "~/utils/misc";
+import { cn } from "~/utils/misc.ts";
 
-import { Button, type ButtonProps } from "./ui/button";
-import { Input, type InputProps } from "./ui/input";
-import { Label } from "./ui/label";
+import { Button, type ButtonProps } from "./ui/button.tsx";
+import { Input, type InputProps } from "./ui/input.tsx";
+import { Label } from "./ui/label.tsx";
 
 export type ListOfErrors = Array<null | string | undefined> | null | undefined;
 
