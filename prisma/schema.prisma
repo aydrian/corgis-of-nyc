@@ -11,12 +11,14 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email     String    @unique
-  firstName String    @map("first_name")
-  lastName  String    @map("last_name")
-  createdAt DateTime  @default(now()) @map("created_at")
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String     @unique
+  firstName String     @map("first_name")
+  lastName  String     @map("last_name")
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
   password  Password?
+  events    Event[]
+  locations Location[]
 
   @@map("users")
 }
@@ -31,15 +33,16 @@ model Password {
 }
 
 model Member {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstName   String   @map("first_name")
-  lastName    String   @map("last_name")
-  email       String   @unique
-  phoneNumber String   @map("phone_number")
-  zipCode     String   @map("zip_code")
-  readCOC     Boolean  @map("read_coc")
-  createdAt   DateTime @default(now()) @map("created_at")
-  corgis      Corgi[]
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName     String         @map("first_name")
+  lastName      String         @map("last_name")
+  email         String         @unique
+  phoneNumber   String         @map("phone_number")
+  zipCode       String         @map("zip_code")
+  readCOC       Boolean        @map("read_coc")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  corgis        Corgi[]
+  locationVotes LocationVote[]
 
   @@map("members")
 }
@@ -50,8 +53,91 @@ model Corgi {
   birthDate DateTime? @map("birth_date") @db.Date
   instagram String?
   isVisible Boolean   @map("is_visible")
-  createdAt DateTime  @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   pawrents  Member[]
 
   @@map("corgis")
+}
+
+model Event {
+  id              String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  startDate       DateTime?             @map("start_date") @db.Timestamptz(6)
+  endDate         DateTime?             @map("end_date") @db.Timestamptz(6)
+  createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  locationId      String?               @db.Uuid
+  createdBy       String                @db.Uuid
+  creator         User                  @relation(fields: [createdBy], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  location        Location?             @relation(fields: [locationId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  locationVotes   LocationVote[]
+  dateOptions     EventDateOption[]
+  dateVotes       DateVote[]
+  locationOptions EventLocationOption[]
+
+  @@map("events")
+}
+
+model Location {
+  id                  String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  zipCode             String                @map("zip_code")
+  website             String?
+  isActive            Boolean               @default(true) @map("is_active")
+  createdBy           String                @db.Uuid
+  creator             User                  @relation(fields: [createdBy], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  events              Event[]
+  locationVotes       LocationVote[]
+  EventLocationOption EventLocationOption[]
+
+  @@map("locations")
+}
+
+// Add row-level ttl of 60 days
+model EventLocationOption {
+  eventId    String   @db.Uuid
+  locationId String   @db.Uuid
+  event      Event    @relation(fields: [eventId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  location   Location @relation(fields: [locationId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+
+  @@id([eventId, locationId])
+  @@map("event_location_options")
+}
+
+// Add row-level ttl of 60 days
+model LocationVote {
+  eventId    String   @db.Uuid
+  memberId   String   @db.Uuid
+  locationId String   @db.Uuid
+  rank       Int      @db.Int2
+  event      Event    @relation(fields: [eventId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  member     Member   @relation(fields: [memberId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  location   Location @relation(fields: [locationId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+
+  @@id([eventId, memberId, locationId, rank])
+  @@map("location_votes")
+}
+
+// Add row-level ttl of 60 days
+model EventDateOption {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId   String     @db.Uuid
+  startDate DateTime   @map("start_date") @db.Timestamptz(6)
+  endDate   DateTime   @map("end_date") @db.Timestamptz(6)
+  event     Event      @relation(fields: [eventId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  dateVotes DateVote[]
+
+  @@map("event_date_options")
+}
+
+// Add row-level ttl of 60 days
+model DateVote {
+  eventId      String          @db.Uuid
+  memberId     String          @db.Uuid
+  dateOptionId String          @db.Uuid
+  rank         Int             @db.Int2
+  event        Event           @relation(fields: [eventId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+  dateOption   EventDateOption @relation(fields: [dateOptionId], references: [id], onUpdate: NoAction, onDelete: Cascade)
+
+  @@id([eventId, memberId, dateOptionId])
+  @@map("date_votes")
 }
