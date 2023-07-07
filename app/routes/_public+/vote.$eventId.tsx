@@ -8,7 +8,17 @@ import { VoteForm } from "../resources+/vote";
 export const loader = async ({ params }: LoaderArgs) => {
   const { eventId } = params;
   const event = await prisma.event.findUnique({
-    select: { id: true },
+    select: {
+      dateOptions: { select: { endDate: true, id: true, startDate: true } },
+      id: true,
+      locationOptions: {
+        select: {
+          location: { select: { name: true, zipCode: true } },
+          locationId: true
+        }
+      },
+      name: true
+    },
     where: { id: eventId }
   });
 
@@ -26,7 +36,7 @@ export default function VoteEventId() {
       <h2 className="flex items-center gap-2 text-2xl font-semibold leading-tight text-gray-700">
         Cast your votes
       </h2>
-      <VoteForm eventId={event.id} />
+      <VoteForm event={event} />
     </div>
   );
 }
