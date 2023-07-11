@@ -9,7 +9,10 @@ export const loader = async ({ params }: LoaderArgs) => {
   const { eventId } = params;
   const event = await prisma.event.findUnique({
     select: {
-      dateOptions: { select: { endDate: true, id: true, startDate: true } },
+      dateOptions: {
+        orderBy: { startDate: "asc" },
+        select: { endDate: true, id: true, startDate: true }
+      },
       id: true,
       locationOptions: {
         select: {
@@ -26,17 +29,19 @@ export const loader = async ({ params }: LoaderArgs) => {
     return new Response("Not Found", { status: 404 });
   }
 
-  return json({ event });
+  const member = { id: "3023392b-01b0-47d9-9c31-54d0ec4ac331" };
+
+  return json({ event, member });
 };
 
 export default function VoteEventId() {
-  const { event } = useLoaderData<typeof loader>();
+  const { event, member } = useLoaderData<typeof loader>();
   return (
     <div className="flex w-full flex-col gap-1.5 rounded-md bg-white p-6 drop-shadow-md">
-      <h2 className="flex items-center gap-2 text-2xl font-semibold leading-tight text-gray-700">
-        Cast your votes
+      <h2 className="mb-2 flex items-center gap-2 text-2xl font-semibold leading-tight text-gray-700">
+        Cast your votes for {event.name}
       </h2>
-      <VoteForm event={event} />
+      <VoteForm event={event} member={member} />
     </div>
   );
 }
