@@ -113,7 +113,7 @@ model LocationVote {
   member     Member   @relation(fields: [memberId], references: [id], onUpdate: NoAction, onDelete: Cascade)
   location   Location @relation(fields: [locationId], references: [id], onUpdate: NoAction, onDelete: Cascade)
 
-  @@id([eventId, memberId, locationId, rank])
+  @@id([eventId, memberId, locationId])
   @@map("location_votes")
 }
 

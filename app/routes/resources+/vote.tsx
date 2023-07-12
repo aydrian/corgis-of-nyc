@@ -12,7 +12,7 @@ import { z } from "zod";
 
 import { ErrorList, SubmitButton } from "~/components/form";
 import { Ballot, BallotHeader } from "~/components/ranked-choice";
-// import { prisma } from "~/utils/db.server";
+import { prisma } from "~/utils/db.server";
 import { formatDateRange } from "~/utils/misc";
 
 const DateVoteSchema = z.object({
@@ -83,20 +83,35 @@ export async function action({ request }: ActionArgs) {
     return json({ status: "idle", submission } as const);
   }
 
-  // const { dateVotes, eventId, locationVotes, memberId } = submission.value;
-  // const dateData = dateVotes.map(({ dateOptionId, rank }) => {
-  //   return { dateOptionId, eventId, memberId, rank };
-  // });
-  // const locationData = locationVotes.map(({ locationId, rank }) => {
-  //   return { eventId, locationId, memberId, rank };
-  // });
+  const { dateVotes, eventId, locationVotes, memberId } = submission.value;
+  const dateUpserts = dateVotes.map(({ dateOptionId, rank }) => {
+    return prisma.dateVote.upsert({
+      create: { dateOptionId, eventId, memberId, rank },
+      update: { rank },
+      where: {
+        eventId_memberId_dateOptionId: {
+          dateOptionId,
+          eventId,
+          memberId
+        }
+      }
+    });
+  });
+  const locationUpserts = locationVotes.map(({ locationId, rank }) => {
+    return prisma.locationVote.upsert({
+      create: { eventId, locationId, memberId, rank },
+      update: { rank },
+      where: {
+        eventId_memberId_locationId: {
+          eventId,
+          locationId,
+          memberId
+        }
+      }
+    });
+  });
 
-  // await prisma.$transaction([
-  //   prisma.dateVote.createMany({ data: dateData }),
-  //   prisma.locationVote.createMany({
-  //     data: locationData
-  //   })
-  // ]);
+  await prisma.$transaction([...dateUpserts, ...locationUpserts]);
 
   return json({ status: "success", submission } as const);
 }
