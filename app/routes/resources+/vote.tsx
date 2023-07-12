@@ -11,7 +11,8 @@ import { useRef } from "react";
 import { z } from "zod";
 
 import { ErrorList, SubmitButton } from "~/components/form";
-import { prisma } from "~/utils/db.server";
+import { Ballot, BallotHeader } from "~/components/ranked-choice";
+// import { prisma } from "~/utils/db.server";
 import { formatDateRange } from "~/utils/misc";
 
 const DateVoteSchema = z.object({
@@ -25,9 +26,41 @@ const LocationVoteSchema = z.object({
 });
 
 const VoteFormSchema = z.object({
-  dateVotes: z.array(DateVoteSchema).min(4),
+  dateVotes: z
+    .array(DateVoteSchema)
+    .min(4)
+    .superRefine((val, ctx) => {
+      let resultToReturn = false;
+      resultToReturn = val.some((element, index) => {
+        return val.findIndex((item) => item.rank === element.rank) !== index;
+      });
+      if (resultToReturn) {
+        console.log("superRefine error");
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Cannot have duplicate choices.",
+          path: ["dateVotes", 0, "rank"]
+        });
+      }
+      return z.never;
+    }),
   eventId: z.string(),
-  locationVotes: z.array(LocationVoteSchema).min(4),
+  locationVotes: z
+    .array(LocationVoteSchema)
+    .min(4)
+    .superRefine((val, ctx) => {
+      let resultToReturn = false;
+      resultToReturn = val.some((element, index) => {
+        return val.findIndex((item) => item.rank === element.rank) !== index;
+      });
+      if (resultToReturn) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Cannot have duplicate choices."
+        });
+      }
+      return z.never;
+    }),
   memberId: z.string()
 });
 
@@ -50,20 +83,20 @@ export async function action({ request }: ActionArgs) {
     return json({ status: "idle", submission } as const);
   }
 
-  const { dateVotes, eventId, locationVotes, memberId } = submission.value;
-  const dateData = dateVotes.map(({ dateOptionId, rank }) => {
-    return { dateOptionId, eventId, memberId, rank };
-  });
-  const locationData = locationVotes.map(({ locationId, rank }) => {
-    return { eventId, locationId, memberId, rank };
-  });
+  // const { dateVotes, eventId, locationVotes, memberId } = submission.value;
+  // const dateData = dateVotes.map(({ dateOptionId, rank }) => {
+  //   return { dateOptionId, eventId, memberId, rank };
+  // });
+  // const locationData = locationVotes.map(({ locationId, rank }) => {
+  //   return { eventId, locationId, memberId, rank };
+  // });
 
-  await prisma.$transaction([
-    prisma.dateVote.createMany({ data: dateData }),
-    prisma.locationVote.createMany({
-      data: locationData
-    })
-  ]);
+  // await prisma.$transaction([
+  //   prisma.dateVote.createMany({ data: dateData }),
+  //   prisma.locationVote.createMany({
+  //     data: locationData
+  //   })
+  // ]);
 
   return json({ status: "success", submission } as const);
 }
@@ -123,36 +156,8 @@ export function VoteForm({
       <h3 className="mb-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a date
       </h3>
-      <ul className="mb-4 border border-b-0 border-blue-600">
-        <li className="flex justify-between bg-blue-600 text-white">
-          <div></div>
-          <div className="flex uppercase">
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                1<sup className="top-[-.75em] text-[50%]">st</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                2<sup className="top-[-.75em] text-[50%]">nd</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                3<sup className="top-[-.75em] text-[50%]">rd</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                4<sup className="top-[-.75em] text-[50%]">th</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-          </div>
-        </li>
+      <Ballot>
+        <BallotHeader numChoices={4} />
         {dateVotesList.map((dateVote, index) => (
           <li key={dateVote.key}>
             <DateVoteFieldset
@@ -161,40 +166,12 @@ export function VoteForm({
             />
           </li>
         ))}
-      </ul>
+      </Ballot>
       <h3 className="mb-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a location
       </h3>
-      <ul className="mb-4 border border-b-0 border-blue-600">
-        <li className="flex justify-between bg-blue-600 text-white">
-          <div></div>
-          <div className="flex uppercase">
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                1<sup className="top-[-.75em] text-[50%]">st</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                2<sup className="top-[-.75em] text-[50%]">nd</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                3<sup className="top-[-.75em] text-[50%]">rd</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-            <div className="flex w-14 flex-col items-center px-2">
-              <div className="text-2xl font-black leading-tight">
-                4<sup className="top-[-.75em] text-[50%]">th</sup>
-              </div>
-              <div className="text-xs font-light leading-snug">choice</div>
-            </div>
-          </div>
-        </li>
+      <Ballot>
+        <BallotHeader numChoices={4} />
         {locationVotesList.map((locationVote, index) => (
           <li key={locationVote.key}>
             <LocationVoteFieldset
@@ -203,7 +180,7 @@ export function VoteForm({
             />
           </li>
         ))}
-      </ul>
+      </Ballot>
       <ErrorList errors={form.errors} id={form.errorId} />
       {voteFetcher.data?.status === "success" ? (
         <div className="font-bold text-green-600">Success</div>
@@ -224,6 +201,7 @@ function DateVoteFieldset({
 }) {
   const ref = useRef<HTMLFieldSetElement>(null);
   const { dateOptionId, rank } = useFieldset(ref, config);
+  console.log("rank", rank);
 
   return (
     <fieldset className="flex justify-between" ref={ref}>
@@ -238,19 +216,39 @@ function DateVoteFieldset({
       <div className="flex">
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">1</span>
-          <input name={rank.name} type="radio" value="1" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="1"
+          />
         </label>
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">2</span>
-          <input name={rank.name} type="radio" value="2" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="2"
+          />
         </label>
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">3</span>
-          <input name={rank.name} type="radio" value="3" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="3"
+          />
         </label>
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">4</span>
-          <input name={rank.name} type="radio" value="4" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="4"
+          />
         </label>
       </div>
     </fieldset>
@@ -283,19 +281,39 @@ function LocationVoteFieldset({
       <div className="flex">
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">1</span>
-          <input name={rank.name} type="radio" value="1" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="1"
+          />
         </label>
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">2</span>
-          <input name={rank.name} type="radio" value="2" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="2"
+          />
         </label>
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">3</span>
-          <input name={rank.name} type="radio" value="3" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="3"
+          />
         </label>
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">4</span>
-          <input name={rank.name} type="radio" value="4" />
+          <input
+            className={rank.errors ? "border border-red-600" : undefined}
+            name={rank.name}
+            type="radio"
+            value="4"
+          />
         </label>
       </div>
     </fieldset>
