@@ -13,7 +13,7 @@ import { z } from "zod";
 import { ErrorList, SubmitButton } from "~/components/form";
 import { Ballot, BallotHeader } from "~/components/ranked-choice";
 import { prisma } from "~/utils/db.server";
-import { formatDateRange } from "~/utils/misc";
+import { formatDateRange, getOrdinal } from "~/utils/misc";
 
 const DateVoteSchema = z.object({
   dateOptionId: z.string(),
@@ -30,18 +30,23 @@ const VoteFormSchema = z.object({
     .array(DateVoteSchema)
     .min(4)
     .superRefine((val, ctx) => {
-      let resultToReturn = false;
-      resultToReturn = val.some((element, index) => {
-        return val.findIndex((item) => item.rank === element.rank) !== index;
+      val.forEach((element, index) => {
+        if (
+          val.findIndex(
+            (item) =>
+              item.rank === element.rank &&
+              item.dateOptionId !== element.dateOptionId
+          ) !== -1
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Cannot have multiple ${element.rank}${getOrdinal(
+              element.rank
+            )} choices`,
+            path: [index, "rank"]
+          });
+        }
       });
-      if (resultToReturn) {
-        console.log("superRefine error");
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Cannot have duplicate choices.",
-          path: ["dateVotes", 0, "rank"]
-        });
-      }
       return z.never;
     }),
   eventId: z.string(),
@@ -49,16 +54,23 @@ const VoteFormSchema = z.object({
     .array(LocationVoteSchema)
     .min(4)
     .superRefine((val, ctx) => {
-      let resultToReturn = false;
-      resultToReturn = val.some((element, index) => {
-        return val.findIndex((item) => item.rank === element.rank) !== index;
+      val.forEach((element, index) => {
+        if (
+          val.findIndex(
+            (item) =>
+              item.rank === element.rank &&
+              item.locationId !== element.locationId
+          ) !== -1
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Cannot have multiple ${element.rank}${getOrdinal(
+              element.rank
+            )} choices`,
+            path: [index, "rank"]
+          });
+        }
       });
-      if (resultToReturn) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Cannot have duplicate choices."
-        });
-      }
       return z.never;
     }),
   memberId: z.string()
@@ -164,6 +176,22 @@ export function VoteForm({
     defaultValue: locationVotes.defaultValue ?? defaultLocations
   });
 
+  const dateVotesErrors = [
+    ...new Set(
+      dateVotesList.map(({ error }) => {
+        return error;
+      })
+    )
+  ];
+
+  const locationVotesErrors = [
+    ...new Set(
+      locationVotesList.map(({ error }) => {
+        return error;
+      })
+    )
+  ];
+
   return (
     <voteFetcher.Form action="/resources/vote" method="post" {...form.props}>
       <input name={eventId.name} type="hidden" value={eventId.defaultValue} />
@@ -182,6 +210,7 @@ export function VoteForm({
           </li>
         ))}
       </Ballot>
+      <ErrorList errors={dateVotesErrors} />
       <h3 className="mb-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a location
       </h3>
@@ -196,6 +225,7 @@ export function VoteForm({
           </li>
         ))}
       </Ballot>
+      <ErrorList errors={locationVotesErrors} />
       <ErrorList errors={form.errors} id={form.errorId} />
       {voteFetcher.data?.status === "success" ? (
         <div className="font-bold text-green-600">Success</div>
@@ -216,7 +246,12 @@ function DateVoteFieldset({
 }) {
   const ref = useRef<HTMLFieldSetElement>(null);
   const { dateOptionId, rank } = useFieldset(ref, config);
-  console.log("rank", rank);
+  rank.errors &&
+    console.log("rank", {
+      error: rank.error,
+      errors: rank.errors,
+      name: rank.name
+    });
 
   return (
     <fieldset className="flex justify-between" ref={ref}>
@@ -232,7 +267,9 @@ function DateVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">1</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="1"
@@ -241,7 +278,9 @@ function DateVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">2</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="2"
@@ -250,7 +289,9 @@ function DateVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">3</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="3"
@@ -259,7 +300,9 @@ function DateVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">4</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="4"
@@ -297,7 +340,9 @@ function LocationVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">1</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="1"
@@ -306,7 +351,9 @@ function LocationVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">2</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="2"
@@ -315,7 +362,9 @@ function LocationVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">3</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="3"
@@ -324,7 +373,9 @@ function LocationVoteFieldset({
         <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
           <span className="sr-only">4</span>
           <input
-            className={rank.errors ? "border border-red-600" : undefined}
+            className={
+              rank.errors ? "checked:ring checked:ring-red-600" : undefined
+            }
             name={rank.name}
             type="radio"
             value="4"
