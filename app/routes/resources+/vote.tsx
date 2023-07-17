@@ -7,11 +7,12 @@ import {
 import { getFieldsetConstraint, parse } from "@conform-to/zod";
 import { type ActionArgs, json } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { z } from "zod";
 
 import { ErrorList, SubmitButton } from "~/components/form";
 import { Ballot, BallotHeader } from "~/components/ranked-choice";
+import { Badge } from "~/components/ui/badge";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { prisma } from "~/utils/db.server";
@@ -142,7 +143,11 @@ export function VoteForm({
     dateOptions: { endDate: string; id: string; startDate: string }[];
     id: string;
     locationOptions: {
-      location: { name: string; zipCode: string };
+      location: {
+        name: string;
+        zipCode: string;
+        zipData: { borough: string; neighborhood: string };
+      };
       locationId: string;
     }[];
     name: string;
@@ -205,7 +210,7 @@ export function VoteForm({
       <h3 className="mb-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a date
       </h3>
-      <Ballot>
+      <Ballot className="mx-auto sm:mx-0">
         <BallotHeader numChoices={4} />
         {dateVotesList.map((dateVote, index) => (
           <li key={dateVote.key}>
@@ -220,7 +225,7 @@ export function VoteForm({
       <h3 className="my-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a location
       </h3>
-      <Ballot>
+      <Ballot className="mx-auto sm:mx-0">
         <BallotHeader numChoices={4} />
         {locationVotesList.map((locationVote, index) => (
           <li key={locationVote.key}>
@@ -237,7 +242,7 @@ export function VoteForm({
         <div className="font-bold text-green-600">Success</div>
       ) : null}
       <SubmitButton
-        className="mt-2"
+        className="mt-2 w-full sm:w-auto"
         state={voteFetcher.state}
         submittingText="Submitting"
       >
@@ -284,7 +289,12 @@ function LocationVoteFieldset({
 }: {
   config: FieldConfig<z.input<typeof LocationVoteSchema>>;
   locationOption: {
-    location: { name: string; zipCode: string };
+    location: {
+      name: string;
+      website?: string;
+      zipCode: string;
+      zipData: { borough: string; neighborhood: string };
+    };
     locationId: string;
   };
 }) {
@@ -299,16 +309,54 @@ function LocationVoteFieldset({
         value={locationId.defaultValue}
       />
       <BallotOption
-        option={`${locationOption.location.name} (${locationOption.location.zipCode})`}
+        option={<LocationOption location={locationOption.location} />}
         {...rank}
       />
     </fieldset>
   );
 }
 
+function LocationOption({
+  location
+}: {
+  location: {
+    name: string;
+    website?: string;
+    zipCode: string;
+    zipData: { borough: string; neighborhood: string };
+  };
+}) {
+  const name = location.website ? (
+    <a
+      className="text-blue-700 hover:underline"
+      href={location.website}
+      rel="noreferrer"
+      target="_blank"
+    >
+      {location.name}
+    </a>
+  ) : (
+    <span>{location.name}</span>
+  );
+  return (
+    <>
+      {name}
+      <Badge
+        className={cn(
+          "ml-1.5 hidden sm:inline-block",
+          getBoroughColor(location.zipData.borough)
+        )}
+        title={location.zipData.neighborhood}
+      >
+        {location.zipData.borough}
+      </Badge>
+    </>
+  );
+}
+
 interface BallotOptionProps extends FieldConfig<string> {
   numChoices?: number;
-  option: string;
+  option: ReactNode;
 }
 
 function BallotOption({
@@ -321,7 +369,7 @@ function BallotOption({
     <div className="flex justify-between">
       <div
         className={cn(
-          "grow border-b border-b-blue-600 p-1",
+          "grow border-b border-b-blue-600 p-1 text-sm sm:text-base",
           config.errors?.length && "text-red-600"
         )}
       >
@@ -335,7 +383,7 @@ function BallotOption({
       >
         {choices.map((choice) => (
           <Label
-            className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2"
+            className="flex w-10 items-center justify-center border-b border-l border-blue-600 px-1 sm:w-14 sm:px-2"
             key={choice}
           >
             <span className="sr-only">{`${choice}${getOrdinal(
@@ -353,3 +401,25 @@ function BallotOption({
     </div>
   );
 }
+
+const getBoroughColor = (borough: string) => {
+  let color = "bg-black";
+  switch (borough) {
+    case "Bronx":
+      color = "bg-[#00933c]";
+      break;
+    case "Brooklyn":
+      color = "bg-[#ff6319]";
+      break;
+    case "Manhattan":
+      color = "bg-[#0039a6]";
+      break;
+    case "Queens":
+      color = "bg-[#fccc0a] text-black";
+      break;
+    case "Staten Island":
+      color = "bg-[#ee352e]";
+      break;
+  }
+  return color;
+};

@@ -33,16 +33,18 @@ model Password {
 }
 
 model Member {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstName     String         @map("first_name")
-  lastName      String         @map("last_name")
-  email         String         @unique
-  phoneNumber   String         @map("phone_number")
-  zipCode       String         @map("zip_code")
-  readCOC       Boolean        @map("read_coc")
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  email       String   @unique
+  phoneNumber String   @map("phone_number")
+  zipCode     String   @map("zip_code")
+  readCOC     Boolean  @map("read_coc")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
   corgis        Corgi[]
   locationVotes LocationVote[]
+  zipData       NYCZipCode?    @relation(fields: [zipCode], references: [zipCode])
 
   @@map("members")
 }
@@ -88,6 +90,8 @@ model Location {
   events              Event[]
   locationVotes       LocationVote[]
   EventLocationOption EventLocationOption[]
+
+  zipData NYCZipCode? @relation(fields: [zipCode], references: [zipCode])
 
   @@map("locations")
 }
@@ -140,4 +144,15 @@ model DateVote {
 
   @@id([eventId, memberId, dateOptionId])
   @@map("date_votes")
+}
+
+model NYCZipCode {
+  zipCode      String @id @map("zip_code")
+  borough      String
+  neighborhood String
+
+  eventLocations Location[]
+  members        Member[]
+
+  @@map("nyc_zip_codes")
 }

@@ -108,7 +108,7 @@ export function JoinForm({ className }: { className?: string }) {
       action="/resources/join"
       method="post"
       {...form.props}
-      className={cn("flex flex-col gap-1.5", className)}
+      className={cn(className)}
     >
       <h3 className="mb-1.5 text-xl font-semibold leading-tight text-gray-700">
         Tell us about yourself
@@ -170,7 +170,7 @@ export function JoinForm({ className }: { className?: string }) {
         ))}
       </ul>
       <Button
-        className="mb-3"
+        className="my-3 w-full sm:w-auto"
         size="sm"
         variant="secondary"
         {...list.append(corgis.name)}
@@ -197,7 +197,7 @@ export function JoinForm({ className }: { className?: string }) {
         buttonProps={conform.input(readCOC, { type: "checkbox" })}
         errors={readCOC.errors}
       />
-      <SubmitButton>Submit</SubmitButton>
+      <SubmitButton className="w-full sm:w-auto">Submit</SubmitButton>
     </joinFetcher.Form>
   );
 }

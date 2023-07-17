@@ -1,4 +1,6 @@
-import { type LoaderArgs, Response, json } from "@remix-run/node";
+import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+
+import { Response, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { prisma } from "~/utils/db.server";
@@ -16,7 +18,14 @@ export const loader = async ({ params }: LoaderArgs) => {
       id: true,
       locationOptions: {
         select: {
-          location: { select: { name: true, zipCode: true } },
+          location: {
+            select: {
+              name: true,
+              website: true,
+              zipCode: true,
+              zipData: { select: { borough: true, neighborhood: true } }
+            }
+          },
           locationId: true
         }
       },
@@ -33,6 +42,12 @@ export const loader = async ({ params }: LoaderArgs) => {
 
   return json({ event, member });
 };
+
+export const meta: V2_MetaFunction<typeof loader> = ({ data }) => [
+  {
+    title: `Corgis of NYC: Cast your votes for ${data.event.name}`
+  }
+];
 
 export default function VoteEventId() {
   const { event, member } = useLoaderData<typeof loader>();
