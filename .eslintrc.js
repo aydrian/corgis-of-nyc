@@ -6,7 +6,6 @@ module.exports = {
     "prettier",
     "plugin:perfectionist/recommended-natural"
   ],
-  plugins: ["perfectionist"],
   rules: {
     "@typescript-eslint/consistent-type-imports": [
       "warn",
@@ -16,6 +15,6 @@ module.exports = {
         prefer: "type-imports"
       }
     ],
-    "@typescript-eslint/no-duplicate-imports": "warn"
+    "import/no-duplicates": "warn"
   }
 };
