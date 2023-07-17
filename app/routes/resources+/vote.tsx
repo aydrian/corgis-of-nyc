@@ -370,7 +370,8 @@ function BallotOption({
       <div
         className={cn(
           "grow border-b border-b-blue-600 p-1 text-sm sm:text-base",
-          config.errors?.length && "text-red-600"
+          config.errors?.length &&
+            "underline decoration-red-600 decoration-wavy"
         )}
       >
         {option}
