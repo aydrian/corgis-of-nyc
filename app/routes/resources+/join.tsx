@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import { useRef } from "react";
 import { z } from "zod";
 
-import { CheckboxField, InputField, SubmitButton } from "~/components/form";
+import { CheckboxField, Field, SubmitButton } from "~/components/form";
 import { Button } from "~/components/ui/button";
 import { prisma } from "~/utils/db.server";
 import { cn } from "~/utils/misc";
@@ -114,13 +114,13 @@ export function JoinForm({ className }: { className?: string }) {
         Tell us about yourself
       </h3>
       <div className="md:flex md:w-full md:justify-evenly md:gap-4">
-        <InputField
+        <Field
           className="md:grow"
           errors={firstName.errors}
           inputProps={conform.input(firstName)}
           labelProps={{ children: "First Name", htmlFor: firstName.id }}
         />
-        <InputField
+        <Field
           className="md:grow"
           errors={lastName.errors}
           inputProps={conform.input(lastName)}
@@ -128,13 +128,13 @@ export function JoinForm({ className }: { className?: string }) {
         />
       </div>
       <div className="md:flex md:w-full md:justify-evenly md:gap-4">
-        <InputField
+        <Field
           className="md:grow"
           errors={email.errors}
           inputProps={conform.input(email, { type: "email" })}
           labelProps={{ children: "Email", htmlFor: email.id }}
         />
-        <InputField
+        <Field
           labelProps={{
             children: "Phone Number",
             htmlFor: phoneNumber.id
@@ -143,7 +143,7 @@ export function JoinForm({ className }: { className?: string }) {
           errors={phoneNumber.errors}
           inputProps={conform.input(phoneNumber, { type: "tel" })}
         />
-        <InputField
+        <Field
           errors={zipCode.errors}
           inputProps={conform.input(zipCode)}
           labelProps={{ children: "Zip Code", htmlFor: zipCode.id }}
@@ -194,7 +194,7 @@ export function JoinForm({ className }: { className?: string }) {
           ),
           htmlFor: readCOC.id
         }}
-        checkboxProps={conform.input(readCOC)}
+        buttonProps={conform.input(readCOC, { type: "checkbox" })}
         errors={readCOC.errors}
       />
       <SubmitButton>Submit</SubmitButton>
@@ -208,13 +208,13 @@ function CorgiFieldset(config: FieldConfig<z.input<typeof CorgiSchema>>) {
 
   return (
     <fieldset className="rounded-md border border-input p-2" ref={ref}>
-      <InputField
+      <Field
         errors={name.errors}
         inputProps={conform.input(name)}
         labelProps={{ children: "Name", htmlFor: name.id }}
       />
       <div className="md:flex md:w-full md:justify-evenly md:gap-4">
-        <InputField
+        <Field
           inputProps={{
             ...conform.input(birthDate, { type: "date" }),
             max: format(new Date(), "yyyy-MM-dd")
@@ -226,7 +226,7 @@ function CorgiFieldset(config: FieldConfig<z.input<typeof CorgiSchema>>) {
           className="md:grow"
           errors={birthDate.errors}
         />
-        <InputField
+        <Field
           className="md:grow"
           errors={instagram.errors}
           inputProps={conform.input(instagram)}
@@ -238,7 +238,7 @@ function CorgiFieldset(config: FieldConfig<z.input<typeof CorgiSchema>>) {
           children: "Show corgi in catalog?",
           htmlFor: isVisible.id
         }}
-        checkboxProps={conform.input(isVisible)}
+        buttonProps={conform.input(isVisible, { type: "checkbox" })}
         errors={isVisible.errors}
       />
     </fieldset>
