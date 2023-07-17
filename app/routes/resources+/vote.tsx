@@ -12,17 +12,23 @@ import { z } from "zod";
 
 import { ErrorList, SubmitButton } from "~/components/form";
 import { Ballot, BallotHeader } from "~/components/ranked-choice";
+import { Label } from "~/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 import { prisma } from "~/utils/db.server";
-import { formatDateRange, getOrdinal } from "~/utils/misc";
+import { cn, formatDateRange, getOrdinal } from "~/utils/misc";
 
 const DateVoteSchema = z.object({
   dateOptionId: z.string(),
-  rank: z.coerce.number()
+  rank: z
+    .string({ required_error: "All options must have a choice." })
+    .pipe(z.coerce.number())
 });
 
 const LocationVoteSchema = z.object({
   locationId: z.string(),
-  rank: z.coerce.number()
+  rank: z
+    .string({ required_error: "All options must have a choice." })
+    .pipe(z.coerce.number())
 });
 
 const VoteFormSchema = z.object({
@@ -211,7 +217,7 @@ export function VoteForm({
         ))}
       </Ballot>
       <ErrorList errors={dateVotesErrors} />
-      <h3 className="mb-2 text-xl font-semibold leading-tight text-gray-700">
+      <h3 className="my-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a location
       </h3>
       <Ballot>
@@ -230,7 +236,11 @@ export function VoteForm({
       {voteFetcher.data?.status === "success" ? (
         <div className="font-bold text-green-600">Success</div>
       ) : null}
-      <SubmitButton state={voteFetcher.state} submittingText="Submitting">
+      <SubmitButton
+        className="mt-2"
+        state={voteFetcher.state}
+        submittingText="Submitting"
+      >
         Submit
       </SubmitButton>
     </voteFetcher.Form>
@@ -254,61 +264,16 @@ function DateVoteFieldset({
     });
 
   return (
-    <fieldset className="flex justify-between" ref={ref}>
+    <fieldset ref={ref}>
       <input
         name={dateOptionId.name}
         type="hidden"
         value={dateOptionId.defaultValue}
       />
-      <span className="grow border-b border-b-blue-600 p-1">
-        {formatDateRange(dateOption.startDate, dateOption.endDate)}
-      </span>
-      <div className="flex">
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">1</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="1"
-          />
-        </label>
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">2</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="2"
-          />
-        </label>
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">3</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="3"
-          />
-        </label>
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">4</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="4"
-          />
-        </label>
-      </div>
+      <BallotOption
+        option={formatDateRange(dateOption.startDate, dateOption.endDate)}
+        {...rank}
+      />
     </fieldset>
   );
 }
@@ -327,61 +292,64 @@ function LocationVoteFieldset({
   const { locationId, rank } = useFieldset(ref, config);
 
   return (
-    <fieldset className="flex justify-between" ref={ref}>
+    <fieldset ref={ref}>
       <input
         name={locationId.name}
         type="hidden"
         value={locationId.defaultValue}
       />
-      <span className="grow border-b border-b-blue-600 p-1">
-        {locationOption.location.name} ({locationOption.location.zipCode})
-      </span>
-      <div className="flex">
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">1</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="1"
-          />
-        </label>
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">2</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="2"
-          />
-        </label>
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">3</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="3"
-          />
-        </label>
-        <label className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2">
-          <span className="sr-only">4</span>
-          <input
-            className={
-              rank.errors ? "checked:ring checked:ring-red-600" : undefined
-            }
-            name={rank.name}
-            type="radio"
-            value="4"
-          />
-        </label>
-      </div>
+      <BallotOption
+        option={`${locationOption.location.name} (${locationOption.location.zipCode})`}
+        {...rank}
+      />
     </fieldset>
+  );
+}
+
+interface BallotOptionProps extends FieldConfig<string> {
+  numChoices?: number;
+  option: string;
+}
+
+function BallotOption({
+  numChoices = 4,
+  option,
+  ...config
+}: BallotOptionProps) {
+  const [, ...choices] = [...Array(numChoices + 1).keys()];
+  return (
+    <div className="flex justify-between">
+      <div
+        className={cn(
+          "grow border-b border-b-blue-600 p-1",
+          config.errors?.length && "text-red-600"
+        )}
+      >
+        {option}
+      </div>
+      <RadioGroup
+        className="flex gap-0"
+        defaultValue={config.defaultValue}
+        name={config.name}
+        required={config.required}
+      >
+        {choices.map((choice) => (
+          <Label
+            className="flex w-14 items-center justify-center border-b border-l border-blue-600 px-2"
+            key={choice}
+          >
+            <span className="sr-only">{`${choice}${getOrdinal(
+              choice
+            )} Choice`}</span>
+            <RadioGroupItem
+              className={
+                config.errors ? "checked:ring checked:ring-red-600" : undefined
+              }
+              value={choice.toString()}
+            />
+          </Label>
+        ))}
+      </RadioGroup>
+    </div>
   );
 }
