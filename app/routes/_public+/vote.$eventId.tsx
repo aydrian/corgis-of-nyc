@@ -1,13 +1,13 @@
-import type { LoaderArgs, V2_MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 
-import { Response, json } from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
 import { prisma } from "~/utils/db.server";
 
 import { VoteForm } from "../resources+/vote";
 
-export const loader = async ({ params }: LoaderArgs) => {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { eventId } = params;
   const event = await prisma.event.findUnique({
     select: {
@@ -43,7 +43,7 @@ export const loader = async ({ params }: LoaderArgs) => {
   return json({ event, member });
 };
 
-export const meta: V2_MetaFunction<typeof loader> = ({ data }) => [
+export const meta: MetaFunction<typeof loader> = ({ data }) => [
   {
     title: `Corgis of NYC: Cast your votes for ${data.event.name}`
   }

@@ -1,6 +1,6 @@
-import type { V2_MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: "Corgis of NYC: Code of Conduct" },
     { content: "Welcome to Corgis of NYC", name: "description" }

@@ -11,14 +11,13 @@ import { authenticator } from "~/utils/auth.server";
 import { redirectToCookie } from "~/utils/cookies.server";
 
 const LoginFormSchema = z.object({
-  email: z.string().min(1, { message: "Email is required" }),
-  password: z.string().min(6, "Password must be at least 6 characters long")
+  email: z.string({required_error: "Email is required"}).email("Must be a valid email"),
+  password: z.string({required_error: "Password is required"}).min(6, "Password must be at least 6 characters long")
 });
 
 export const action = async ({ request }: DataFunctionArgs) => {
   const formData = await request.formData();
   const submission = parse(formData, {
-    acceptMultipleErrors: () => true,
     schema: LoginFormSchema
   });
   if (!submission.value || submission.intent !== "submit") {
@@ -44,12 +43,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
       return json(
         {
           status: "error",
-          submission: {
-            ...submission,
-            error: {
-              "": error.message
-            }
-          }
+          submission
         } as const,
         { status: 400 }
       );

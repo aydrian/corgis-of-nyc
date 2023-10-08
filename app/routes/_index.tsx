@@ -1,8 +1,8 @@
-import type { V2_MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 
 import Header from "~/components/header";
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: "Corgis of NYC: NYC Corgi Meetups" },
     { content: "Welcome to Corgis of NYC", name: "description" }

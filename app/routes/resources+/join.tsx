@@ -56,7 +56,6 @@ const JoinFormSchema = z.object({
 export const action = async ({ request }: DataFunctionArgs) => {
   const formData = await request.formData();
   const submission = parse(formData, {
-    acceptMultipleErrors: () => true,
     schema: JoinFormSchema
   });
   if (!submission.value) {
@@ -135,13 +134,13 @@ export function JoinForm({ className }: { className?: string }) {
           labelProps={{ children: "Email", htmlFor: email.id }}
         />
         <Field
+          className="md:grow"
+          errors={phoneNumber.errors}
+          inputProps={conform.input(phoneNumber, { type: "tel" })}
           labelProps={{
             children: "Phone Number",
             htmlFor: phoneNumber.id
           }}
-          className="md:grow"
-          errors={phoneNumber.errors}
-          inputProps={conform.input(phoneNumber, { type: "tel" })}
         />
         <Field
           errors={zipCode.errors}
@@ -178,6 +177,8 @@ export function JoinForm({ className }: { className?: string }) {
         I have another corgi
       </Button>
       <CheckboxField
+        buttonProps={conform.input(readCOC, { type: "checkbox" })}
+        errors={readCOC.errors}
         labelProps={{
           children: (
             <>
@@ -194,8 +195,6 @@ export function JoinForm({ className }: { className?: string }) {
           ),
           htmlFor: readCOC.id
         }}
-        buttonProps={conform.input(readCOC, { type: "checkbox" })}
-        errors={readCOC.errors}
       />
       <SubmitButton className="w-full sm:w-auto">Submit</SubmitButton>
     </joinFetcher.Form>
@@ -215,6 +214,8 @@ function CorgiFieldset(config: FieldConfig<z.input<typeof CorgiSchema>>) {
       />
       <div className="md:flex md:w-full md:justify-evenly md:gap-4">
         <Field
+          className="md:grow"
+          errors={birthDate.errors}
           inputProps={{
             ...conform.input(birthDate, { type: "date" }),
             max: format(new Date(), "yyyy-MM-dd")
@@ -223,8 +224,6 @@ function CorgiFieldset(config: FieldConfig<z.input<typeof CorgiSchema>>) {
             children: "Birth Date",
             htmlFor: birthDate.id
           }}
-          className="md:grow"
-          errors={birthDate.errors}
         />
         <Field
           className="md:grow"
@@ -234,12 +233,12 @@ function CorgiFieldset(config: FieldConfig<z.input<typeof CorgiSchema>>) {
         />
       </div>
       <CheckboxField
+        buttonProps={conform.input(isVisible, { type: "checkbox" })}
+        errors={isVisible.errors}
         labelProps={{
           children: "Show corgi in catalog?",
           htmlFor: isVisible.id
         }}
-        buttonProps={conform.input(isVisible, { type: "checkbox" })}
-        errors={isVisible.errors}
       />
     </fieldset>
   );
