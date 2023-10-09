@@ -1,12 +1,12 @@
 import { type DataFunctionArgs, json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
+import Header from "~/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { FormLoginForm } from "~/routes/auth.form";
 import { authenticator } from "~/utils/auth.server";
 import { redirectToCookie } from "~/utils/cookies.server";
 import { commitSession, getSession } from "~/utils/session.server";
-
-import { FormLoginForm } from "../../auth.form";
 
 export const loader = async ({ request }: DataFunctionArgs) => {
   await authenticator.isAuthenticated(request, {
@@ -34,9 +34,12 @@ export const loader = async ({ request }: DataFunctionArgs) => {
 export default function Login() {
   const data = useLoaderData<typeof loader>();
   return (
-    <>
-      <main>
-        <Card className="w-3/4">
+    <main className="flex min-h-[100svh] flex-col bg-gradient-to-br from-sky-400 via-rose-400 to-lime-400 md:flex-row px-12 py-6 gap-8 md:gap-0">
+      <div className="flex items-start justify-center md:items-center md:pt-0 md:basis-1/2">
+      <Header className="md:max-w-max md:flex-col md:gap-1.5" />
+      </div>
+      <div className="flex basis-3/4 items-start justify-center md:items-center">
+        <Card className="w-full md:min-w-max md:max-w-md">
           <CardHeader>
             <CardTitle className="text-crl-deep-purple">Login</CardTitle>
           </CardHeader>
@@ -46,8 +49,7 @@ export default function Login() {
             ) : null}
             <FormLoginForm formError={data.formError} />
           </CardContent>
-        </Card>
-      </main>
-    </>
+        </Card></div>
+    </main>
   );
 }

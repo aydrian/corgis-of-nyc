@@ -30,7 +30,7 @@ export const action = async ({ request }: DataFunctionArgs) => {
     );
   }
   const redirectTo =
-    (await redirectToCookie.parse(request.headers.get("Cookie"))) ?? "/";
+    (await redirectToCookie.parse(request.headers.get("Cookie"))) ?? "/console";
 
   try {
     await authenticator.authenticate(FormStrategy.name, request, {
