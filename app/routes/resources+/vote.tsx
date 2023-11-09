@@ -1,5 +1,6 @@
 import {
   type FieldConfig,
+  conform,
   useFieldList,
   useFieldset,
   useForm
@@ -204,8 +205,8 @@ export function VoteForm({
 
   return (
     <voteFetcher.Form action="/resources/vote" method="post" {...form.props}>
-      <input name={eventId.name} type="hidden" value={eventId.defaultValue} />
-      <input name={memberId.name} type="hidden" value={memberId.defaultValue} />
+      <input {...conform.input(eventId, { type: "hidden" })} />
+      <input {...conform.input(memberId, { type: "hidden" })} />
       <h3 className="mb-2 text-xl font-semibold leading-tight text-gray-700">
         Choose a date
       </h3>

@@ -9,10 +9,9 @@ import {
   ScrollRestoration
 } from "@remix-run/react";
 
-import styles from "./tailwind.css";
+import "./tailwind.css";
 
 export const links: LinksFunction = () => [
-  { href: styles, rel: "stylesheet" },
   { href: "/favicon.ico", rel: "icon" },
   { href: "/site.webmanifest", rel: "manifest" },
   {
@@ -46,8 +45,8 @@ export default function App() {
       <body>
         <Outlet />
         <ScrollRestoration />
-        <Scripts />
         <LiveReload />
+        <Scripts />
       </body>
     </html>
   );

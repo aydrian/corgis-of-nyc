@@ -172,7 +172,7 @@ export function JoinForm({ className }: { className?: string }) {
         className="my-3 w-full sm:w-auto"
         size="sm"
         variant="secondary"
-        {...list.append(corgis.name)}
+        {...list.insert(corgis.name)}
       >
         I have another corgi
       </Button>

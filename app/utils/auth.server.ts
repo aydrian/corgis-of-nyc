@@ -9,6 +9,9 @@ import invariant from "tiny-invariant";
 import { prisma } from "~/utils/db.server";
 import { sessionStorage } from "~/utils/session.server";
 
+export const DEFAULT_FAILURE_REDIRECT = "/auth/login";
+export const DEFAULT_SUCCESS_REDIRECT = "/console";
+
 export const authenticator = new Authenticator<string>(sessionStorage);
 
 authenticator.use(
@@ -37,7 +40,7 @@ export const requireUserId = async (
     ["loginMessage", "Please login to continue"]
   ]);
   const userId = await authenticator.isAuthenticated(request, {
-    failureRedirect: `/console/login?${searchParams}`
+    failureRedirect: `${DEFAULT_FAILURE_REDIRECT}?${searchParams}`
   });
   return userId;
 };
